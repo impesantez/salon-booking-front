@@ -99,6 +99,7 @@ html, body {
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
+  font-family: "Playfair Display", serif;
 }
 
 .login-form span:hover {
@@ -122,8 +123,8 @@ html, body {
 html, body {
   height: 100%;
   margin: 0;
-  font-family: "Inter", sans-serif;
   background: linear-gradient(135deg, #2b4a3d 0%, #446b59 100%);
+  font-family: "Playfair Display", serif;
 }
 
 /* ==== CENTER CONTENT ==== */
@@ -152,6 +153,7 @@ html, body {
   font-size: 26px;
   font-weight: 700;
   letter-spacing: 0.5px;
+  font-family: "Playfair Display", serif;
 }
 
 /* ==== INPUTS (FROSTED) ==== */
@@ -164,6 +166,7 @@ html, body {
   background: #f7f9fc;
   font-size: 15px;
   transition: 0.25s ease;
+  font-family: "Playfair Display", serif;
 }
 
 .luxury-login input:focus {
@@ -185,6 +188,7 @@ html, body {
   cursor: pointer;
   transition: 0.3s;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  font-family: "Playfair Display", serif;
 }
 
 .luxury-btn:hover {

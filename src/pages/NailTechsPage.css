@@ -11,6 +11,7 @@
   margin-bottom: 30px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  font-family: "Playfair Display", serif;
 }
 
 .nailtech-form {
@@ -23,6 +24,7 @@
   margin: 0 auto 40px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   gap: 12px;
+  font-family: "Playfair Display", serif;
 }
 
 .nailtech-form input {
@@ -30,7 +32,8 @@
   border-radius: 8px;
   padding: 10px;
   font-size: 1rem;
-  font-family: inherit;
+  font-family: "Playfair Display", serif;
+  font-family: "Playfair Display", serif;
 }
 
 .days-checkboxes {
@@ -47,6 +50,7 @@
   color: #2b4c3f;
   font-weight: 500;
   font-size: 0.95rem;
+  font-family: "Playfair Display", serif;
 }
 
 .save-tech-btn {
@@ -59,6 +63,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: "Playfair Display", serif;
 }
 
 .save-tech-btn:hover {
@@ -91,6 +96,7 @@
   color: #1f392f;
   margin-bottom: 10px;
   text-align: center;
+  font-family: "Playfair Display", serif;
 }
 
 .nailtech-card p {
@@ -98,6 +104,7 @@
   margin: 5px 0;
   font-size: 0.95rem;
   line-height: 1.4;
+  font-family: "Playfair Display", serif;
 }
 
 .tech-actions {
@@ -116,6 +123,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  font-family: "Playfair Display", serif;
 }
 
 .edit-btn:hover {
@@ -131,6 +139,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  font-family: "Playfair Display", serif;
 }
 
 .delete-btn:hover {
@@ -164,6 +173,7 @@
   font-weight: 700;
   color: #2b4c3f;
   margin: 0;
+  font-family: "Playfair Display", serif;
 }
 
 .category-header button {
@@ -174,6 +184,7 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
+  font-family: "Playfair Display", serif;
 }
 
 .service-grid {
@@ -191,6 +202,7 @@
   color: #1f392f;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
+  font-family: "Playfair Display", serif;
 }
 
 .service-chip:hover {
@@ -216,11 +228,13 @@
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 12px;
+  font-family: "Playfair Display", serif;
 }
 
 .no-services {
   color: #777;
   font-size: 13px;
+  font-family: "Playfair Display", serif;
 }
 /* ===== View Details button ===== */
 .view-btn {
@@ -232,6 +246,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  font-family: "Playfair Display", serif;
 }
 .view-btn:hover {
   background-color: #2b4c3f;
@@ -267,6 +282,7 @@
   margin-bottom: 10px;
   font-size: 1.5rem;
   font-weight: 700;
+  font-family: "Playfair Display", serif;
 }
 
 .modal-content h4 {
@@ -274,6 +290,7 @@
   margin-top: 12px;
   margin-bottom: 6px;
   font-size: 1rem;
+  font-family: "Playfair Display", serif;
 }
 
 .close-btn {
@@ -288,6 +305,7 @@
   display: block;
   margin-left: auto;
   transition: background 0.2s ease;
+  font-family: "Playfair Display", serif;
 }
 
 .close-btn:hover {
@@ -317,6 +335,7 @@
   color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-family: "Playfair Display", serif;
 }
 /* ===== Modal Mejorado ===== */
 .modal-overlay {
@@ -370,11 +389,13 @@
   font-weight: 600;
   color: #555;
   margin: 0;
+  font-family: "Playfair Display", serif;
 }
 
 .arrow {
   font-size: 14px;
   color: #2b4c3f;
+  font-family: "Playfair Display", serif;
 }
 
 .not-offered-list {
@@ -483,6 +504,7 @@
   margin: 4px 0;
   font-size: 1rem !important;
   font-weight: 500;
+  font-family: "Playfair Display", serif;
 }
 
 /* ===== BADGES DE DISPONIBILIDAD ===== */
@@ -497,6 +519,7 @@
   letter-spacing: 0.3px;
   display: inline-block;
   box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
+  font-family: "Playfair Display", serif;
 }
 
 .days-chips {
@@ -513,6 +536,7 @@
   font-weight: 600;
   padding: 8px 16px !important;
   transition: all 0.25s ease;
+  font-family: "Playfair Display", serif;
 }
 
 /* Editar */
@@ -564,6 +588,7 @@
   color: #2b4a3d;
   border-left: 4px solid #c9b27b;
   padding-left: 8px;
+  font-family: "Playfair Display", serif;
 }
 
 /* Cerrar */

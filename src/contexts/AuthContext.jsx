@@ -25,6 +25,8 @@ export function AuthProvider({ children }) {
             assignedRole = "admin";
             break;
           case "getnaildla@gmail.com":
+          case "impesantez@puce.edu.ec":
+          case "isabepesantez@gmail.com":
             assignedRole = "staff";
             break;
           default:

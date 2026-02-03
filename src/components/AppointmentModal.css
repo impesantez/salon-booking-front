@@ -1,4 +1,4 @@
-/* ===== Overlay ===== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -11,24 +11,22 @@
   background-color: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(6px);
   z-index: 2000;
-  overflow-y: auto; /* ✅ permite scroll si el modal es largo */
+  overflow-y: auto; 
   padding: 20px;
 }
 
-/* ===== Container ===== */
 .modal-container {
   background-color: #f8f7f3;
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  width: 380px; /* ✅ más compacto */
-  padding: 22px 26px; /* ✅ menos padding */
+  width: 380px;
+  padding: 22px 26px;
   font-family: "Inter", sans-serif;
   animation: fadeInUp 0.25s ease-out forwards;
-  max-height: 90vh; /* ✅ no se sale del viewport */
-  overflow-y: auto; /* ✅ scroll interno si es necesario */
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-/* ===== Title ===== */
 .modal-container h2 {
   color: #1f392f;
   font-weight: 700;
@@ -37,14 +35,12 @@
   text-align: center;
 }
 
-/* ===== Form ===== */
 .appointment-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* ===== Labels ===== */
 .appointment-form label {
   font-weight: 600;
   color: #2b4c3f;
@@ -52,7 +48,6 @@
   margin-bottom: 2px;
 }
 
-/* ===== Inputs ===== */
 .appointment-form input,
 .appointment-form select {
   padding: 8px 10px;
@@ -70,12 +65,11 @@
   box-shadow: 0 0 0 3px rgba(43, 76, 63, 0.15);
 }
 
-/* ===== Multiple select ===== */
 .service-select {
   width: 100%;
   height: auto;
   min-height: 120px;
-  max-height: 220px; /* ✅ más pequeño */
+  max-height: 220px; 
   overflow-y: auto;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.6);
@@ -119,7 +113,6 @@
   color: #fff;
 }
 
-/* ===== Selected services text ===== */
 .selected-services {
   display: block;
   margin-top: 4px;
@@ -131,7 +124,6 @@
   line-height: 1.4;
 }
 
-/* ===== Buttons ===== */
 .modal-buttons {
   display: flex;
   justify-content: center;
@@ -189,7 +181,6 @@
   background: rgba(43, 76, 63, 0.6);
 }
 
-/* ===== Animation ===== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -201,7 +192,6 @@
   }
 }
 
-/* ===== Responsive (celulares) ===== */
 @media (max-width: 480px) {
   .modal-container {
     width: 90%;
@@ -223,7 +213,6 @@
   }
 }
 
-/* ===== Overlay ===== */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -237,7 +226,6 @@
   padding: 20px;
 }
 
-/* ===== Container ===== */
 .modal-container {
   background-color: #f8f7f3;
   border-radius: 16px;
@@ -250,7 +238,6 @@
   overflow-y: auto;
 }
 
-/* ===== Title ===== */
 .modal-container h2 {
   color: #1f392f;
   font-weight: 700;
@@ -259,7 +246,6 @@
   text-align: center;
 }
 
-/* ===== Form ===== */
 .appointment-form {
   display: flex;
   flex-direction: column;
@@ -290,7 +276,6 @@
   box-shadow: 0 0 0 3px rgba(43, 76, 63, 0.15);
 }
 
-/* ===== Multiple select ===== */
 .service-select {
   width: 100%;
   height: auto;
@@ -335,7 +320,6 @@
   color: #fff;
 }
 
-/* ===== Selected services text ===== */
 .selected-services {
   display: block;
   margin-top: 4px;
@@ -347,7 +331,7 @@
   line-height: 1.4;
 }
 
-/* ===== Buttons ===== */
+
 .modal-buttons {
   display: flex;
   justify-content: center;
@@ -383,7 +367,7 @@
 }
 .cancel-btn:hover { background-color: #b85c5c; transform: translateY(-1px); }
 
-/* Scrollbar */
+
 .service-select::-webkit-scrollbar { width: 8px; }
 .service-select::-webkit-scrollbar-thumb {
   background: rgba(43, 76, 63, 0.4);

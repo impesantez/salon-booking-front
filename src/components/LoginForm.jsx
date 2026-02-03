@@ -23,7 +23,7 @@ export default function LoginForm() {
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form luxury-login">
-        <h2>Sign In</h2>
+        <h2>Admin Sign In</h2>
 
         <input
           type="email"
@@ -44,6 +44,15 @@ export default function LoginForm() {
         <button type="submit" className="luxury-btn">
           Login
         </button>
+
+        <p className="forgot-password-wrapper">
+          <span
+            className="forgot-password"
+            onClick={() => navigate("/admin/forgot-password")}
+          >
+            Forgot password?
+          </span>
+        </p>
       </form>
     </div>
   );

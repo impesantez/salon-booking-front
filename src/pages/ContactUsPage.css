@@ -12,6 +12,7 @@
   font-weight: 700;
   color: #1f392f;
   margin-bottom: 30px;
+  font-family: "Playfair Display", serif;
 }
 
 .contact-card {
@@ -30,6 +31,7 @@
   font-weight: 600;
   margin-bottom: 15px;
   color: #274c3f;
+  font-family: "Playfair Display", serif;
 }
 
 .info-block {
@@ -40,6 +42,7 @@
   color: #2b4c3f;
   margin: 4px 0;
   font-size: 1rem;
+  font-family: "Playfair Display", serif;
 }
 
 .map-container {
@@ -49,4 +52,52 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* ... keep all your existing styles ... */
+
+/* Social buttons container – at bottom of map */
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;           /* space between map and buttons */
+  flex-wrap: wrap;
+}
+
+/* Shared button styles */
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: "Playfair Display", serif;
+  color: white;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Instagram button */
+.social-btn.instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+/* TikTok button */
+.social-btn.tiktok {
+  background: linear-gradient(45deg, #00f2ea, #ff0050);
+}
+
+/* Hover effects */
+.social-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* Icon placeholder – you can replace with SVG or font-awesome later */
+.social-btn .icon {
+  font-size: 1.4rem;
 }

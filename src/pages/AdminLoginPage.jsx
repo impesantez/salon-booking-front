@@ -18,19 +18,23 @@ useEffect(() => {
     setCurrentUser(user);
 
     if (user) {
+      const email = user.email.toLowerCase().trim();
       let assignedRole = "viewer";
-      switch (user.email.toLowerCase()) {
-  case "linhtranmakeup@gmail.com":
-    assignedRole = "admin";
-    break;
-  case "getnaildla@gmail.com":
-    assignedRole = "staff";
-    break;
-  default:
-    assignedRole = "viewer";
-}
 
-      console.log("✅ Logged in as:", user.email, "→ role:", assignedRole); // 👈 agrega esto
+      switch (email) {
+        case "linhtranmakeup@gmail.com":
+          assignedRole = "admin";
+          break;
+        case "getnaildla@gmail.com":
+        case "impesantez@puce.edu.ec":
+        case "isabepesantez@gmail.com":
+          assignedRole = "staff";
+          break;
+        default:
+          assignedRole = "viewer";
+      }
+
+      console.log("✅ Logged in as:", email, "→ role:", assignedRole);
       setRole(assignedRole);
     } else {
       setRole("viewer");
@@ -41,6 +45,7 @@ useEffect(() => {
 
   return unsub;
 }, []);
+
 
 
   const logout = async () => {

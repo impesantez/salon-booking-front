@@ -1,29 +1,4 @@
-.services-container {
-  padding: 40px;
-  background-color: #f8f7f3;
-  min-height: 100vh;
-}
 
-.services-title {
-  text-align: center;
-  font-size: 2rem;
-  color: #1f392f;
-  margin-bottom: 30px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.service-form {
-  background-color: #e8f0ec;
-  border-radius: 12px;
-  padding: 20px 25px;
-  display: flex;
-  flex-direction: column;
-  max-width: 600px;
-  margin: 0 auto 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  gap: 12px;
-}
 
 .service-form select,
 .service-form input {
@@ -50,12 +25,12 @@
   background-color: #223a31;
 }
 
-.categories-grid {
-  display: flex;                /* 🟩 en vez de grid */
-  flex-wrap: wrap;              /* 🟩 permite que bajen/ suban */
+/*.categories-grid {
+  display: flex;                
+  flex-wrap: wrap;             
   gap: 32px;
-  align-items: flex-start;      /* 🟩 evita alturas iguales */
-}
+  align-items: flex-start;     
+}*/
 
 
 .category-card {
@@ -221,20 +196,15 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s ease;
+  font-family: "Playfair Display", serif;
 }
 
 .save-service-btn:hover {
   background-color: #223a31;
+  font-family: "Playfair Display", serif;
 }
 
-/* ==== GRID ==== */
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 32px;
-}
 
-/* ==== CATEGORY CARD PREMIUM ==== */
 .luxury-category {
   flex: 1 1 360px;              /* 🟩 ocupa mínimo 360px y luego se adapta */
   max-width: 500px;             /* opcional, para que no crezca demasiado */
@@ -300,6 +270,7 @@
   border-radius: 6px;
   padding: 6px 10px;
   cursor: pointer;
+  font-family: "Playfair Display", serif;
 }
 
 .delete-btn {
@@ -315,4 +286,348 @@
   text-align: center;
   color: #777;
   font-style: italic;
+}
+/* Fade in (igual que dashboard) */
+.fade-in {
+  animation: fadeInUp 0.25s ease-out both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== PAGE ===== */
+.services-page {
+  padding: 40px;
+  background: #f8f7f3;
+  min-height: 100vh;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+
+/* =========================
+   ADD SERVICE FORM (MATCHING LUXURY STYLE)
+========================= */
+
+.service-form {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px 28px;
+  max-width: 720px;
+  margin: 0 auto 45px;
+  border: 1px solid rgba(201, 178, 123, 0.25);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: "Playfair Display", serif;
+}
+
+/* Inputs & select */
+.service-form input,
+.service-form select {
+  width: 100%;
+  border: 1px solid rgba(43, 74, 61, 0.22);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  color: #2b4a3d;
+  background: rgba(248, 247, 243, 0.65);
+  outline: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.service-form input::placeholder {
+  color: #8a8a8a;
+  font-weight: 500;
+}
+
+.service-form input:focus,
+.service-form select:focus {
+  box-shadow: 0 0 0 4px rgba(43, 76, 63, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Save button */
+.save-service-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: #2b4a3d;
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 14px 24px rgba(0,0,0,0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.save-service-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(0,0,0,0.16);
+  filter: brightness(1.03);
+}
+
+/* =========================
+   GENERAL LAYOUT
+========================= */
+
+.services-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  background-color: #faf7f4;
+}
+
+.services-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2.2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #2c2c2c;
+}
+
+.services-subtitle {
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.95rem;
+  color: #777;
+  margin-bottom: 3rem;
+}
+
+/* =========================
+   CATEGORY CARD
+========================= */
+
+.luxury-category-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.luxury-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.6rem;
+  color: #1f1f1f;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.luxury-title::after {
+  content: "";
+  width: 50px;
+  height: 3px;
+  background-color: #d4af37;
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  border-radius: 2px;
+}
+
+/* =========================
+   SERVICE LIST
+========================= */
+
+.luxury-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.luxury-service-card {
+  background-color: #fcfcfc;
+  border-radius: 10px;
+  padding: 1rem 1.3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.luxury-service-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   SERVICE INFO
+========================= */
+
+.service-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-name {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #2a2a2a;
+}
+
+.service-price {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.9rem;
+  color: #6f6f6f;
+  margin-top: 2px;
+}
+
+/* =========================
+   ADMIN ACTIONS
+========================= */
+
+.service-actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.luxury-service-card:hover .service-actions {
+  opacity: 1;
+}
+
+.edit-btn,
+.delete-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: "Playfair Display", serif;
+}
+
+.edit-btn {
+  background-color: #e8e2d6;
+  color: #333;
+}
+
+.edit-btn:hover {
+  background-color: #d8d0c1;
+}
+
+.delete-btn {
+  background-color: #f2dede;
+  color: #f2dede;
+}
+
+.delete-btn:hover {
+  background-color: #ebcccc;
+}
+
+/* =========================
+   EMPTY / ERROR STATES
+========================= */
+
+.no-services {
+  text-align: center;
+  font-family: "Playfair Display", serif;
+  color: #999;
+  padding: 1.5rem 0;
+}
+
+.unauthorized {
+  text-align: center;
+  color: #b94a48;
+  font-weight: 600;
+  margin-top: 2rem;
+}
+
+/* ===== FORCE LEFT ALIGNMENT ===== */
+
+.category-title,
+.luxury-title {
+  text-align: left !important;
+}
+
+.category-title::after,
+.luxury-title::after {
+  left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.service-info {
+  align-items: flex-start !important;
+  text-align: left !important;
+}
+
+.service-card,
+.luxury-service-card {
+  text-align: left !important;
+}
+
+/* ===== MASONRY LAYOUT FIX ===== */
+
+.categories-grid {
+  column-count: 2;              /* número de columnas */
+  column-gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .categories-grid {
+    column-count: 1;
+  }
+}
+
+.category-card,
+.luxury-category,
+.luxury-category-card {
+  break-inside: avoid;
+  margin-bottom: 32px;
+  width: 100%;
+}
+.service-form {
+  /* keep your existing properties like background, padding, border, etc. */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;               /* ← increase from 14px → 20–24px */
+  padding: 28px 32px;      /* ← slightly more comfortable padding helps too */
+}
+
+
+/* Make ALL form fields (select + inputs) the same compact height */
+.service-form input,
+.service-form select {
+  width: 100%;
+  border: 1px solid rgba(43, 74, 61, 0.22);
+  border-radius: 14px;
+  padding: 10px 14px;          /* ← reduced vertical padding → same as early version */
+  font-size: 0.98rem;          /* ← tiny reduction prevents feeling too tall */
+  line-height: 1.4;            /* helps vertical centering */
+  height: 44px;                /* ← explicit fixed height – most reliable way to match exactly */
+  box-sizing: border-box;      /* ensures padding doesn't add extra height */
+  background: rgba(248, 247, 243, 0.65);
+  color: #2b4a3d;
+}
+
+/* Match the ADD button to the same height as fields */
+.save-service-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: #2b4a3d;
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  padding: 0;                  /* remove padding – we use height instead */
+  height: 44px;                /* ← same as inputs/select */
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  transition: all 0.15s ease;
+  display: flex;               /* center text vertically */
+  align-items: center;
+  justify-content: center;
+}
+
+.save-service-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.14);
+  filter: brightness(1.05);
 }

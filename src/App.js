@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 import "./App.css";
 
 function App() {
@@ -11,16 +12,22 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Login SOLO para admin/staff (ruta secreta) */}
+            {/* Login SOLO para admin */}
             <Route path="/admin" element={<LoginPage />} />
 
-            {/* Dashboard público (viewer por defecto) */}
+            {/* Recuperar contraseña admin */}
+            <Route
+              path="/admin/forgot-password"
+              element={<ForgotPassword />}
+            />
+
+            {/* Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
 
-            {/* Raíz → Dashboard público */}
+            {/* Raíz */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Rutas desconocidas → Dashboard */}
+            {/* 404 */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </AuthProvider>
