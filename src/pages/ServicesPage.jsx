@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../api";
 import "./ServicesPage.css";
 
-export default function ServicesPage({ role }) {
+export default function ServicesPage({ role, onChange }) {
   const [services, setServices] = useState([]);
   const [newService, setNewService] = useState({ category: "", name: "", price: "" });
   const [editing, setEditing] = useState(null);
@@ -26,7 +26,7 @@ export default function ServicesPage({ role }) {
   const loadServices = async () => {
     try {
       const res = await api.get("/api/services");
-      setServices(res.data);
+      setServices(res.data || []);
     } catch (err) {
       console.error("Error loading services:", err);
     }
@@ -38,17 +38,18 @@ export default function ServicesPage({ role }) {
 
   const handleSaveService = async (e) => {
     e.preventDefault();
-    if (!newService.category || !newService.name || !newService.price) {
-      alert("Please fill in all fields");
+
+    const category = (newService.category || "").trim();
+    const name = (newService.name || "").trim();
+    const priceNum = Number(newService.price);
+
+    if (!category || !name || Number.isNaN(priceNum) || priceNum <= 0) {
+      alert("Please fill in category, name and a valid price (> 0).");
       return;
     }
 
     try {
-      const payload = {
-        category: newService.category.trim(),
-        name: newService.name.trim(),
-        price: parseFloat(newService.price),
-      };
+      const payload = { category, name, price: priceNum };
 
       if (editing) {
         await api.put(`/api/services/${editing.id}`, payload);
@@ -58,7 +59,9 @@ export default function ServicesPage({ role }) {
 
       setNewService({ category: "", name: "", price: "" });
       setEditing(null);
+
       await loadServices();
+      onChange?.();
     } catch (err) {
       console.error("Error saving service:", err);
       alert("Error saving service. Please try again.");
@@ -71,6 +74,7 @@ export default function ServicesPage({ role }) {
     try {
       await api.delete(`/api/services/${id}`);
       setServices((prev) => prev.filter((s) => s.id !== id));
+      onChange?.();
     } catch (err) {
       console.error("Error deleting service:", err);
       alert("Failed to delete service");

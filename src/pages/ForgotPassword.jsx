@@ -26,9 +26,9 @@ function ForgotPassword() {
       if (err.code === "auth/user-not-found") {
         setError("An account does not exist with that email.");
       } else if (err.code === "auth/invalid-email") {
-        setError("Invalid emailformat.");
+        setError("Invalid email format.");
       } else {
-        setError("An error ocurred, try again.");
+        setError("An error occurred, try again.");
       }
     }
   };
@@ -63,8 +63,7 @@ function ForgotPassword() {
         </form>
 
         <p className="bottom-text">
-          Remember your password?{" "}
-          <Link to="/admin">Log in</Link>
+          Remember your password? <Link to="/admin">Log in</Link>
         </p>
       </div>
     </div>

@@ -8,7 +8,7 @@ import SalesReportPage from "./SalesReportPage";
 import ContactUsPage from "./ContactUsPage";
 import AppointmentModal from "../components/AppointmentModal";
 import { useAuth } from "../contexts/AuthContext";
-import api from "../api"; // ✅ usa el axios instance
+import api from "../api";
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -138,6 +138,9 @@ export default function Dashboard() {
 
       setShowModal(false);
       setEditingAppointment(null);
+
+      // refresca por si backend devuelve relaciones (services/tech) en diferente shape
+      await refreshData();
     } catch (err) {
       console.error("Failed saving appointment:", err);
       alert("Error saving appointment.");
@@ -199,12 +202,15 @@ export default function Dashboard() {
           {currentPage === "nailtechs" && (
             <NailTechsPage role={role} onChange={refreshData} />
           )}
+
           {currentPage === "services" && (
             <ServicesPage role={role} onChange={refreshData} />
           )}
+
           {currentPage === "sales" && isAdminOrStaff && (
             <SalesReportPage role={role} />
           )}
+
           {currentPage === "contact" && <ContactUsPage />}
 
           {currentPage === "calendar" && (
@@ -219,10 +225,13 @@ export default function Dashboard() {
                       setCurrentDate(d);
                     }}
                     aria-label="Previous week"
+                    type="button"
                   >
                     ‹
                   </button>
+
                   <h2 className="cal-range">{headerRangeLabel()}</h2>
+
                   <button
                     className="cal-nav-btn"
                     onClick={() => {
@@ -231,6 +240,7 @@ export default function Dashboard() {
                       setCurrentDate(d);
                     }}
                     aria-label="Next week"
+                    type="button"
                   >
                     ›
                   </button>
@@ -243,6 +253,7 @@ export default function Dashboard() {
                       setEditingAppointment(null);
                       setShowModal(true);
                     }}
+                    type="button"
                   >
                     + New Appointment
                   </button>
@@ -251,7 +262,6 @@ export default function Dashboard() {
 
               <div className="cal-grid-container">
                 <div className="cal-grid-wrapper">
-                  {/* First row: days 0-3 */}
                   <div className="cal-grid-row">
                     {days.slice(0, 4).map((day) => {
                       const dayKey = formatYMD(day);
@@ -275,12 +285,14 @@ export default function Dashboard() {
                                   [dayKey]: !prev[dayKey],
                                 }))
                               }
+                              type="button"
                             >
                               <span>Available Techs</span>
                               <span className={`cal-caret ${isTechOpen ? "open" : ""}`}>
                                 ▾
                               </span>
                             </button>
+
                             <div className={`cal-pill-panel ${isTechOpen ? "open" : ""}`}>
                               {availTechs.length
                                 ? availTechs.map((t) => t.name).join(", ")
@@ -339,6 +351,7 @@ export default function Dashboard() {
                                             setEditingAppointment(a);
                                             setShowModal(true);
                                           }}
+                                          type="button"
                                         >
                                           Edit
                                         </button>
@@ -347,6 +360,7 @@ export default function Dashboard() {
                                           <button
                                             className="btn btn-delete"
                                             onClick={() => handleDelete(a.id)}
+                                            type="button"
                                           >
                                             Delete
                                           </button>
@@ -372,7 +386,6 @@ export default function Dashboard() {
                     })}
                   </div>
 
-                  {/* Second row: days 4-6 */}
                   <div className="cal-grid-row">
                     {days.slice(4).map((day) => {
                       const dayKey = formatYMD(day);
@@ -396,12 +409,14 @@ export default function Dashboard() {
                                   [dayKey]: !prev[dayKey],
                                 }))
                               }
+                              type="button"
                             >
                               <span>Available Techs</span>
                               <span className={`cal-caret ${isTechOpen ? "open" : ""}`}>
                                 ▾
                               </span>
                             </button>
+
                             <div className={`cal-pill-panel ${isTechOpen ? "open" : ""}`}>
                               {availTechs.length
                                 ? availTechs.map((t) => t.name).join(", ")
@@ -460,6 +475,7 @@ export default function Dashboard() {
                                             setEditingAppointment(a);
                                             setShowModal(true);
                                           }}
+                                          type="button"
                                         >
                                           Edit
                                         </button>
@@ -468,6 +484,7 @@ export default function Dashboard() {
                                           <button
                                             className="btn btn-delete"
                                             onClick={() => handleDelete(a.id)}
+                                            type="button"
                                           >
                                             Delete
                                           </button>

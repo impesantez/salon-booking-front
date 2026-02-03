@@ -13,7 +13,7 @@ export default function SalesReportPage({ role }) {
   const loadReport = async () => {
     try {
       const res = await api.get("/api/reports/daily-sales");
-      setReport(res.data);
+      setReport(res.data || []);
     } catch (err) {
       console.error("Error loading sales report:", err);
     }
@@ -26,7 +26,9 @@ export default function SalesReportPage({ role }) {
   return (
     <div className="sales-report-container">
       <h2 className="sales-title">Daily Sales Report</h2>
-      <p className="sales-subtitle">Automatically calculated based on today's appointments</p>
+      <p className="sales-subtitle">
+        Automatically calculated based on today's appointments
+      </p>
 
       <div className="sales-table">
         <table>

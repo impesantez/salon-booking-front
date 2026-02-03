@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../api";
 import "./NailTechsPage.css";
 
@@ -20,23 +20,23 @@ export default function NailTechsPage({ role, onChange }) {
   const isStaff = role === "staff";
   const isViewer = !role || role === "viewer";
 
-  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const daysOfWeek = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
   const loadNailTechs = async () => {
     try {
       const res = await api.get("/api/nailtechs");
-      setNailTechs(res.data);
+      setNailTechs(res.data || []);
     } catch (err) {
-      console.error("Error loading nail techs:", err);
+      console.error("Error loading nail techs:", err?.response?.data || err);
     }
   };
 
   const loadServices = async () => {
     try {
       const res = await api.get("/api/services");
-      setServices(res.data);
+      setServices(res.data || []);
     } catch (err) {
-      console.error("Error loading services:", err);
+      console.error("Error loading services:", err?.response?.data || err);
     }
   };
 
@@ -45,29 +45,34 @@ export default function NailTechsPage({ role, onChange }) {
     loadServices();
   }, []);
 
-  const groupedServices = services.reduce((acc, svc) => {
-    const cat = svc.category || "Other";
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(svc);
-    return acc;
-  }, {});
+  const groupedServices = useMemo(() => {
+    return (services || []).reduce((acc, svc) => {
+      const cat = svc.category || "Other";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(svc);
+      return acc;
+    }, {});
+  }, [services]);
 
   const toggleService = (id) => {
     setNewTech((prev) => {
-      const alreadySelected = prev.serviceIds.includes(id);
-      const updated = alreadySelected ? prev.serviceIds.filter((sid) => sid !== id) : [...prev.serviceIds, id];
-      return { ...prev, serviceIds: updated };
+      const exists = prev.serviceIds.includes(id);
+      return {
+        ...prev,
+        serviceIds: exists ? prev.serviceIds.filter((x) => x !== id) : [...prev.serviceIds, id],
+      };
     });
   };
 
   const toggleCategory = (cat) => {
     const allIds = (groupedServices[cat] || []).map((s) => s.id);
-    const allSelected = allIds.every((id) => newTech.serviceIds.includes(id));
+    const allSelected = allIds.length > 0 && allIds.every((id) => newTech.serviceIds.includes(id));
+
     setNewTech((prev) => ({
       ...prev,
       serviceIds: allSelected
         ? prev.serviceIds.filter((id) => !allIds.includes(id))
-        : [...new Set([...prev.serviceIds, ...allIds])],
+        : Array.from(new Set([...prev.serviceIds, ...allIds])),
     }));
   };
 
@@ -85,12 +90,20 @@ export default function NailTechsPage({ role, onChange }) {
 
     try {
       const payload = {
-        name: newTech.name,
-        email: newTech.email,
-        phone: newTech.phone,
-        availabilityJson: JSON.stringify(newTech.availableDays),
-        services: newTech.serviceIds.map((id) => ({ id })),
+        name: (newTech.name || "").trim(),
+        email: (newTech.email || "").trim(),
+        phone: (newTech.phone || "").trim(),
+        availabilityJson: JSON.stringify(newTech.availableDays || []),
+
+        // ✅ manda ambos formatos para compatibilidad
+        serviceIds: (newTech.serviceIds || []).map((id) => Number(id)),
+        services: (newTech.serviceIds || []).map((id) => ({ id: Number(id) })),
       };
+
+      if (!payload.name) {
+        alert("Name is required");
+        return;
+      }
 
       if (editing) {
         await api.put(`/api/nailtechs/${editing.id}`, payload);
@@ -100,11 +113,13 @@ export default function NailTechsPage({ role, onChange }) {
 
       setNewTech({ name: "", email: "", phone: "", availableDays: [], serviceIds: [] });
       setEditing(null);
+
       await loadNailTechs();
       onChange?.();
+      alert("Saved ✅");
     } catch (err) {
-      console.error("Error saving nail tech:", err);
-      alert("Error saving nail technician. Check the console for details.");
+      console.error("Error saving nail tech:", err?.response?.data || err);
+      alert(`Error saving nail technician: ${err?.response?.data || err.message}`);
     }
   };
 
@@ -119,12 +134,23 @@ export default function NailTechsPage({ role, onChange }) {
       parsedDays = [];
     }
 
+    // ✅ soporta tech.services o tech.serviceIds
+    const idsFromServices = Array.isArray(tech.services)
+      ? tech.services.map((s) => s?.id).filter(Boolean)
+      : [];
+
+    const idsFromServiceIds = Array.isArray(tech.serviceIds)
+      ? tech.serviceIds
+      : [];
+
+    const merged = Array.from(new Set([...idsFromServices, ...idsFromServiceIds])).map(Number);
+
     setNewTech({
       name: tech.name || "",
       email: tech.email || "",
       phone: tech.phone || "",
       availableDays: parsedDays,
-      serviceIds: tech.services ? tech.services.map((s) => s.id) : [],
+      serviceIds: merged,
     });
   };
 
@@ -133,22 +159,23 @@ export default function NailTechsPage({ role, onChange }) {
     try {
       await api.delete(`/api/nailtechs/${id}`);
       setNailTechs((prev) => prev.filter((t) => t.id !== id));
+      onChange?.();
     } catch (err) {
-      console.error("Error deleting nail tech:", err);
-      alert("Couldn't delete — check backend cascade or constraints.");
+      console.error("Error deleting nail tech:", err?.response?.data || err);
+      alert("Couldn't delete — check backend constraints.");
     }
   };
 
   const getServiceSeparation = (tech) => {
-    const offeredIds = tech.services?.map((s) => s.id) || [];
+    const offeredIds = (tech.services?.map((s) => s.id) || tech.serviceIds || []).map(Number);
     const offeredByCategory = {};
 
     Object.keys(groupedServices).forEach((cat) => {
-      const offered = (groupedServices[cat] || []).filter((s) => offeredIds.includes(s.id));
+      const offered = (groupedServices[cat] || []).filter((s) => offeredIds.includes(Number(s.id)));
       if (offered.length > 0) offeredByCategory[cat] = offered;
     });
 
-    const notOffered = services.filter((s) => !offeredIds.includes(s.id));
+    const notOffered = (services || []).filter((s) => !offeredIds.includes(Number(s.id)));
     return { offeredByCategory, notOffered };
   };
 
@@ -181,7 +208,11 @@ export default function NailTechsPage({ role, onChange }) {
           <div className="days-checkboxes">
             {daysOfWeek.map((day) => (
               <label key={day} className="day-option">
-                <input type="checkbox" checked={newTech.availableDays.includes(day)} onChange={() => handleCheckboxChange(day)} />
+                <input
+                  type="checkbox"
+                  checked={newTech.availableDays.includes(day)}
+                  onChange={() => handleCheckboxChange(day)}
+                />
                 {day}
               </label>
             ))}
@@ -195,19 +226,22 @@ export default function NailTechsPage({ role, onChange }) {
                 <div className="category-header">
                   <h4>{cat}</h4>
                   <button type="button" onClick={() => toggleCategory(cat)}>
-                    {(groupedServices[cat] || []).every((s) => newTech.serviceIds.includes(s.id)) ? "Clear" : "Select All"}
+                    {(groupedServices[cat] || []).every((s) => newTech.serviceIds.includes(s.id))
+                      ? "Clear"
+                      : "Select All"}
                   </button>
                 </div>
 
                 <div className="service-grid">
                   {(groupedServices[cat] || []).map((svc) => (
-                    <div
+                    <button
                       key={svc.id}
+                      type="button"
                       className={`service-chip ${newTech.serviceIds.includes(svc.id) ? "selected" : ""}`}
                       onClick={() => toggleService(svc.id)}
                     >
                       {svc.name}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -235,32 +269,27 @@ export default function NailTechsPage({ role, onChange }) {
             <div className="availability-section">
               <strong>Available:</strong>
               <div className="days-chips">
-                {tech.availabilityJson && (() => {
+                {(() => {
                   try {
-                    const arr = JSON.parse(tech.availabilityJson);
-                    return Array.isArray(arr) && arr.length > 0;
+                    const arr = tech.availabilityJson ? JSON.parse(tech.availabilityJson) : [];
+                    if (!Array.isArray(arr) || arr.length === 0) return <span className="no-days">—</span>;
+                    return arr.map((d, i) => <span key={i} className="day-chip">{d}</span>);
                   } catch {
-                    return false;
+                    return <span className="no-days">—</span>;
                   }
-                })() ? (
-                  JSON.parse(tech.availabilityJson).map((d, i) => (
-                    <span key={i} className="day-chip">{d}</span>
-                  ))
-                ) : (
-                  <span className="no-days">—</span>
-                )}
+                })()}
               </div>
             </div>
 
             <div className="tech-actions">
-              <button className="view-btn" onClick={() => setSelectedTech(tech)}>
+              <button type="button" className="view-btn" onClick={() => setSelectedTech(tech)}>
                 View Details
               </button>
 
               {(isAdmin || isStaff) && (
                 <>
-                  <button className="edit-btn" type="button" onClick={() => handleEdit(tech)}>Edit</button>
-                  <button className="delete-btn" type="button" onClick={() => handleDelete(tech.id)}>Delete</button>
+                  <button type="button" className="edit-btn" onClick={() => handleEdit(tech)}>Edit</button>
+                  <button type="button" className="delete-btn" onClick={() => handleDelete(tech.id)}>Delete</button>
                 </>
               )}
             </div>
@@ -278,24 +307,6 @@ export default function NailTechsPage({ role, onChange }) {
                 <p><strong>Email:</strong> {selectedTech.email || "—"}</p>
                 <p><strong>Phone:</strong> {selectedTech.phone || "—"}</p>
               </>
-            )}
-
-            <h4>Availability</h4>
-            {selectedTech.availabilityJson && (() => {
-              try {
-                const arr = JSON.parse(selectedTech.availabilityJson);
-                return Array.isArray(arr) && arr.length > 0;
-              } catch {
-                return false;
-              }
-            })() ? (
-              <div className="days-chips">
-                {JSON.parse(selectedTech.availabilityJson).map((d, i) => (
-                  <span key={i} className="day-chip">{d}</span>
-                ))}
-              </div>
-            ) : (
-              <p>No availability set</p>
             )}
 
             <h4>Services</h4>
@@ -316,7 +327,10 @@ export default function NailTechsPage({ role, onChange }) {
 
                   {notOffered.length > 0 && (
                     <div className="not-offered-section">
-                      <div className="not-offered-header" onClick={() => setShowNotOffered((prev) => !prev)}>
+                      <div
+                        className="not-offered-header"
+                        onClick={() => setShowNotOffered((prev) => !prev)}
+                      >
                         <h5>Not Offered</h5>
                         <span className={`arrow ${showNotOffered ? "open" : ""}`}>▼</span>
                       </div>
@@ -334,7 +348,7 @@ export default function NailTechsPage({ role, onChange }) {
               );
             })()}
 
-            <button className="close-btn" onClick={() => setSelectedTech(null)}>
+            <button type="button" className="close-btn" onClick={() => setSelectedTech(null)}>
               Close
             </button>
           </div>
