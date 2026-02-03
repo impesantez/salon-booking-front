@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import "./ServicesPage.css";
 
 export default function ServicesPage({ role }) {
@@ -25,7 +25,7 @@ export default function ServicesPage({ role }) {
 
   const loadServices = async () => {
     try {
-      const res = await axios.get("/api/services");
+      const res = await api.get("/api/services");
       setServices(res.data);
     } catch (err) {
       console.error("Error loading services:", err);
@@ -51,14 +51,14 @@ export default function ServicesPage({ role }) {
       };
 
       if (editing) {
-        await axios.put(`/api/services/${editing.id}`, payload);
+        await api.put(`/api/services/${editing.id}`, payload);
       } else {
-        await axios.post("/api/services", payload);
+        await api.post("/api/services", payload);
       }
 
       setNewService({ category: "", name: "", price: "" });
       setEditing(null);
-      loadServices();
+      await loadServices();
     } catch (err) {
       console.error("Error saving service:", err);
       alert("Error saving service. Please try again.");
@@ -69,7 +69,7 @@ export default function ServicesPage({ role }) {
     if (!window.confirm("Are you sure you want to delete this service?")) return;
 
     try {
-      await axios.delete(`/api/services/${id}`);
+      await api.delete(`/api/services/${id}`);
       setServices((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
       console.error("Error deleting service:", err);
@@ -80,15 +80,16 @@ export default function ServicesPage({ role }) {
   const handleEdit = (service) => {
     setEditing(service);
     setNewService({
-      category: service.category,
-      name: service.name,
-      price: service.price,
+      category: service.category || "",
+      name: service.name || "",
+      price: service.price ?? "",
     });
   };
 
   const grouped = services.reduce((acc, s) => {
-    if (!acc[s.category]) acc[s.category] = [];
-    acc[s.category].push(s);
+    const cat = s.category || "Other";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(s);
     return acc;
   }, {});
 
@@ -149,10 +150,10 @@ export default function ServicesPage({ role }) {
 
                     {isAdmin && (
                       <div className="service-actions">
-                        <button className="edit-btn" onClick={() => handleEdit(s)}>
+                        <button type="button" className="edit-btn" onClick={() => handleEdit(s)}>
                           Edit
                         </button>
-                        <button className="delete-btn" onClick={() => handleDelete(s.id)}>
+                        <button type="button" className="delete-btn" onClick={() => handleDelete(s.id)}>
                           Delete
                         </button>
                       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import "./SalesReportPage.css";
 
 export default function SalesReportPage({ role }) {
@@ -7,14 +7,12 @@ export default function SalesReportPage({ role }) {
   const isAuthorized = role === "admin" || role === "staff";
 
   useEffect(() => {
-    if (isAuthorized) {
-      loadReport();
-    }
+    if (isAuthorized) loadReport();
   }, [isAuthorized]);
 
   const loadReport = async () => {
     try {
-      const res = await axios.get("/api/reports/daily-sales");
+      const res = await api.get("/api/reports/daily-sales");
       setReport(res.data);
     } catch (err) {
       console.error("Error loading sales report:", err);
@@ -43,7 +41,7 @@ export default function SalesReportPage({ role }) {
               report.map((r, i) => (
                 <tr key={i}>
                   <td>{r.nailTech}</td>
-                  <td>${r.totalSales.toFixed(2)}</td>
+                  <td>${Number(r.totalSales || 0).toFixed(2)}</td>
                 </tr>
               ))
             ) : (

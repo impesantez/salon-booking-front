@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import "./NailTechsPage.css";
 
 export default function NailTechsPage({ role, onChange }) {
@@ -20,13 +20,11 @@ export default function NailTechsPage({ role, onChange }) {
   const isStaff = role === "staff";
   const isViewer = !role || role === "viewer";
 
-  const daysOfWeek = [
-    "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday",
-  ];
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   const loadNailTechs = async () => {
     try {
-      const res = await axios.get("/api/nailtechs");
+      const res = await api.get("/api/nailtechs");
       setNailTechs(res.data);
     } catch (err) {
       console.error("Error loading nail techs:", err);
@@ -35,7 +33,7 @@ export default function NailTechsPage({ role, onChange }) {
 
   const loadServices = async () => {
     try {
-      const res = await axios.get("/api/services");
+      const res = await api.get("/api/services");
       setServices(res.data);
     } catch (err) {
       console.error("Error loading services:", err);
@@ -57,15 +55,13 @@ export default function NailTechsPage({ role, onChange }) {
   const toggleService = (id) => {
     setNewTech((prev) => {
       const alreadySelected = prev.serviceIds.includes(id);
-      const updated = alreadySelected
-        ? prev.serviceIds.filter((sid) => sid !== id)
-        : [...prev.serviceIds, id];
+      const updated = alreadySelected ? prev.serviceIds.filter((sid) => sid !== id) : [...prev.serviceIds, id];
       return { ...prev, serviceIds: updated };
     });
   };
 
   const toggleCategory = (cat) => {
-    const allIds = groupedServices[cat].map((s) => s.id);
+    const allIds = (groupedServices[cat] || []).map((s) => s.id);
     const allSelected = allIds.every((id) => newTech.serviceIds.includes(id));
     setNewTech((prev) => ({
       ...prev,
@@ -86,6 +82,7 @@ export default function NailTechsPage({ role, onChange }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
+
     try {
       const payload = {
         name: newTech.name,
@@ -96,14 +93,14 @@ export default function NailTechsPage({ role, onChange }) {
       };
 
       if (editing) {
-        await axios.put(`/api/nailtechs/${editing.id}`, payload);
+        await api.put(`/api/nailtechs/${editing.id}`, payload);
       } else {
-        await axios.post("/api/nailtechs", payload);
+        await api.post("/api/nailtechs", payload);
       }
 
       setNewTech({ name: "", email: "", phone: "", availableDays: [], serviceIds: [] });
       setEditing(null);
-      loadNailTechs();
+      await loadNailTechs();
       onChange?.();
     } catch (err) {
       console.error("Error saving nail tech:", err);
@@ -113,11 +110,20 @@ export default function NailTechsPage({ role, onChange }) {
 
   const handleEdit = (tech) => {
     setEditing(tech);
+
+    let parsedDays = [];
+    try {
+      parsedDays = tech.availabilityJson ? JSON.parse(tech.availabilityJson) : [];
+      if (!Array.isArray(parsedDays)) parsedDays = [];
+    } catch {
+      parsedDays = [];
+    }
+
     setNewTech({
-      name: tech.name,
-      email: tech.email,
-      phone: tech.phone,
-      availableDays: tech.availabilityJson ? JSON.parse(tech.availabilityJson) : [],
+      name: tech.name || "",
+      email: tech.email || "",
+      phone: tech.phone || "",
+      availableDays: parsedDays,
       serviceIds: tech.services ? tech.services.map((s) => s.id) : [],
     });
   };
@@ -125,7 +131,7 @@ export default function NailTechsPage({ role, onChange }) {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this nail tech?")) return;
     try {
-      await axios.delete(`/api/nailtechs/${id}`);
+      await api.delete(`/api/nailtechs/${id}`);
       setNailTechs((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error("Error deleting nail tech:", err);
@@ -136,10 +142,12 @@ export default function NailTechsPage({ role, onChange }) {
   const getServiceSeparation = (tech) => {
     const offeredIds = tech.services?.map((s) => s.id) || [];
     const offeredByCategory = {};
+
     Object.keys(groupedServices).forEach((cat) => {
-      const offered = groupedServices[cat].filter((s) => offeredIds.includes(s.id));
+      const offered = (groupedServices[cat] || []).filter((s) => offeredIds.includes(s.id));
       if (offered.length > 0) offeredByCategory[cat] = offered;
     });
+
     const notOffered = services.filter((s) => !offeredIds.includes(s.id));
     return { offeredByCategory, notOffered };
   };
@@ -173,11 +181,7 @@ export default function NailTechsPage({ role, onChange }) {
           <div className="days-checkboxes">
             {daysOfWeek.map((day) => (
               <label key={day} className="day-option">
-                <input
-                  type="checkbox"
-                  checked={newTech.availableDays.includes(day)}
-                  onChange={() => handleCheckboxChange(day)}
-                />
+                <input type="checkbox" checked={newTech.availableDays.includes(day)} onChange={() => handleCheckboxChange(day)} />
                 {day}
               </label>
             ))}
@@ -185,19 +189,18 @@ export default function NailTechsPage({ role, onChange }) {
 
           <div className="service-selector">
             <h3>Services</h3>
+
             {Object.keys(groupedServices).map((cat) => (
               <div key={cat} className="category-block">
                 <div className="category-header">
                   <h4>{cat}</h4>
                   <button type="button" onClick={() => toggleCategory(cat)}>
-                    {groupedServices[cat].every((s) => newTech.serviceIds.includes(s.id))
-                      ? "Clear"
-                      : "Select All"}
+                    {(groupedServices[cat] || []).every((s) => newTech.serviceIds.includes(s.id)) ? "Clear" : "Select All"}
                   </button>
                 </div>
 
                 <div className="service-grid">
-                  {groupedServices[cat].map((svc) => (
+                  {(groupedServices[cat] || []).map((svc) => (
                     <div
                       key={svc.id}
                       className={`service-chip ${newTech.serviceIds.includes(svc.id) ? "selected" : ""}`}
@@ -222,7 +225,6 @@ export default function NailTechsPage({ role, onChange }) {
           <div key={tech.id} className="nailtech-card">
             <h3 className="tech-name">{tech.name}</h3>
 
-            {/* 👉 Viewer: oculta contacto */}
             {!isViewer && (
               <>
                 <p><strong>Email:</strong> {tech.email || "—"}</p>
@@ -233,7 +235,14 @@ export default function NailTechsPage({ role, onChange }) {
             <div className="availability-section">
               <strong>Available:</strong>
               <div className="days-chips">
-                {tech.availabilityJson && JSON.parse(tech.availabilityJson).length > 0 ? (
+                {tech.availabilityJson && (() => {
+                  try {
+                    const arr = JSON.parse(tech.availabilityJson);
+                    return Array.isArray(arr) && arr.length > 0;
+                  } catch {
+                    return false;
+                  }
+                })() ? (
                   JSON.parse(tech.availabilityJson).map((d, i) => (
                     <span key={i} className="day-chip">{d}</span>
                   ))
@@ -247,10 +256,11 @@ export default function NailTechsPage({ role, onChange }) {
               <button className="view-btn" onClick={() => setSelectedTech(tech)}>
                 View Details
               </button>
+
               {(isAdmin || isStaff) && (
                 <>
-                  <button className="edit-btn" onClick={() => handleEdit(tech)}>Edit</button>
-                  <button className="delete-btn" onClick={() => handleDelete(tech.id)}>Delete</button>
+                  <button className="edit-btn" type="button" onClick={() => handleEdit(tech)}>Edit</button>
+                  <button className="delete-btn" type="button" onClick={() => handleDelete(tech.id)}>Delete</button>
                 </>
               )}
             </div>
@@ -258,7 +268,6 @@ export default function NailTechsPage({ role, onChange }) {
         ))}
       </div>
 
-      {/* MODAL DETALLES */}
       {selectedTech && (
         <div className="modal-overlay" onClick={() => setSelectedTech(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -272,7 +281,14 @@ export default function NailTechsPage({ role, onChange }) {
             )}
 
             <h4>Availability</h4>
-            {selectedTech.availabilityJson && JSON.parse(selectedTech.availabilityJson).length > 0 ? (
+            {selectedTech.availabilityJson && (() => {
+              try {
+                const arr = JSON.parse(selectedTech.availabilityJson);
+                return Array.isArray(arr) && arr.length > 0;
+              } catch {
+                return false;
+              }
+            })() ? (
               <div className="days-chips">
                 {JSON.parse(selectedTech.availabilityJson).map((d, i) => (
                   <span key={i} className="day-chip">{d}</span>
@@ -300,10 +316,7 @@ export default function NailTechsPage({ role, onChange }) {
 
                   {notOffered.length > 0 && (
                     <div className="not-offered-section">
-                      <div
-                        className="not-offered-header"
-                        onClick={() => setShowNotOffered((prev) => !prev)}
-                      >
+                      <div className="not-offered-header" onClick={() => setShowNotOffered((prev) => !prev)}>
                         <h5>Not Offered</h5>
                         <span className={`arrow ${showNotOffered ? "open" : ""}`}>▼</span>
                       </div>
