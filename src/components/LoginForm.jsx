@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import "./LoginForm.css";
+
+// Si quieres que /admin SOLO acepte el admin, pon aquí el email admin:
+const ADMIN_EMAIL = "linhtranmakeup@gmail.com";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -14,7 +17,17 @@ export default function LoginForm() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+
+      // ✅ OPCIONAL: si quieres que esta pantalla /admin sea SOLO para el admin:
+      const normalized = email.toLowerCase().trim();
+      if (normalized !== ADMIN_EMAIL) {
+        alert("Only the admin account can log in here.");
+        await signOut(auth);
+        return;
+      }
+
+      // ✅ Si pasó, lo mandas al dashboard (mismo dashboard con más opciones por role)
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       alert("Incorrect login");
     }

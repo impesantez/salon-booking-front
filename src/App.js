@@ -12,16 +12,13 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Login SOLO para admin */}
+            {/* Login SOLO para admin (puerta de entrada) */}
             <Route path="/admin" element={<LoginPage />} />
 
             {/* Recuperar contraseña admin */}
-            <Route
-              path="/admin/forgot-password"
-              element={<ForgotPassword />}
-            />
+            <Route path="/admin/forgot-password" element={<ForgotPassword />} />
 
-            {/* Dashboard */}
+            {/* Dashboard (mismo para todos; cambia por role) */}
             <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Raíz */}

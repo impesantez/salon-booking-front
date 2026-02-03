@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 import Sidebar from "../components/Sidebar";
 import NailTechsPage from "./NailTechsPage";
 import ServicesPage from "./ServicesPage";
@@ -11,6 +13,11 @@ import "./Dashboard.css";
 
 export default function Dashboard() {
   const { role, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // ✅ Base URL for API (Render vs Local)
+  const API_BASE =
+    (process.env.REACT_APP_API_URL || "http://localhost:8080").replace(/\/$/, "");
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentPage, setCurrentPage] = useState("calendar");
@@ -35,8 +42,8 @@ export default function Dashboard() {
 
   const loadNailTechs = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/nailtechs");
-      const sorted = res.data.sort((a, b) => a.name.localeCompare(b.name));
+      const res = await axios.get(`${API_BASE}/api/nailtechs`);
+      const sorted = (res.data || []).sort((a, b) => a.name.localeCompare(b.name));
       setNailTechs(sorted);
     } catch (err) {
       console.error("Error loading nail techs:", err);
@@ -45,8 +52,8 @@ export default function Dashboard() {
 
   const loadServices = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/services");
-      const sorted = res.data.sort((a, b) => {
+      const res = await axios.get(`${API_BASE}/api/services`);
+      const sorted = (res.data || []).sort((a, b) => {
         const catA = (a.category || "").toLowerCase();
         const catB = (b.category || "").toLowerCase();
         if (catA !== catB) return catA.localeCompare(catB);
@@ -60,8 +67,8 @@ export default function Dashboard() {
 
   const loadAppointments = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/appointments");
-      setAppointments(res.data);
+      const res = await axios.get(`${API_BASE}/api/appointments`);
+      setAppointments(res.data || []);
     } catch (err) {
       console.error("Error loading appointments:", err);
     }
@@ -69,10 +76,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     refreshData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatYMD = (d) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
 
   const getStartOfWeek = (date) => {
     const copy = new Date(date);
@@ -88,7 +98,8 @@ export default function Dashboard() {
     return d;
   });
 
-  const weekdayName = (date) => date.toLocaleDateString("en-US", { weekday: "long" });
+  const weekdayName = (date) =>
+    date.toLocaleDateString("en-US", { weekday: "long" });
 
   const techsAvailableThatDay = (date) => {
     const day = weekdayName(date);
@@ -113,19 +124,19 @@ export default function Dashboard() {
         startTime: formData.startTime,
         endTime: formData.endTime,
         nailTechId: formData.nailTechId ? Number(formData.nailTechId) : null,
-        serviceIds: formData.serviceIds.map((id) => Number(id)),
+        serviceIds: (formData.serviceIds || []).map((id) => Number(id)),
       };
 
       if (editingAppointment) {
         const res = await axios.put(
-          `http://localhost:8080/api/appointments/${editingAppointment.id}`,
+          `${API_BASE}/api/appointments/${editingAppointment.id}`,
           payload
         );
         setAppointments((prev) =>
           prev.map((a) => (a.id === editingAppointment.id ? res.data : a))
         );
       } else {
-        const res = await axios.post("http://localhost:8080/api/appointments", payload);
+        const res = await axios.post(`${API_BASE}/api/appointments`, payload);
         setAppointments((prev) => [...prev, res.data]);
       }
 
@@ -138,9 +149,10 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
+    if (!window.confirm("Are you sure you want to cancel this appointment?"))
+      return;
     try {
-      await axios.delete(`http://localhost:8080/api/appointments/${id}`);
+      await axios.delete(`${API_BASE}/api/appointments/${id}`);
       setAppointments((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error("Failed deleting appointment:", err);
@@ -151,13 +163,11 @@ export default function Dashboard() {
   const handleToggleComplete = async (appt) => {
     try {
       const res = await axios.put(
-        `http://localhost:8080/api/appointments/${appt.id}/complete`,
+        `${API_BASE}/api/appointments/${appt.id}/complete`,
         { completed: !appt.completed }
       );
       const updated = res.data || { ...appt, completed: !appt.completed };
-      setAppointments((prev) =>
-        prev.map((a) => (a.id === appt.id ? updated : a))
-      );
+      setAppointments((prev) => prev.map((a) => (a.id === appt.id ? updated : a)));
     } catch (err) {
       alert("Could not toggle completion.");
     }
@@ -165,7 +175,10 @@ export default function Dashboard() {
 
   const headerRangeLabel = () => {
     const end = new Date(startOfWeek.getTime() + 6 * 86400000);
-    return `${startOfWeek.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    return `${startOfWeek.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
   };
 
   return (
@@ -176,16 +189,22 @@ export default function Dashboard() {
           onNavigate={setCurrentPage}
           onLogout={async () => {
             await logout?.();
-            window.location = "/dashboard";
+            navigate("/dashboard", { replace: true });
           }}
         />
       </div>
 
       <div className="dash-main">
         <div className="dash-content fade-in">
-          {currentPage === "nailtechs" && <NailTechsPage role={role} onChange={refreshData} />}
-          {currentPage === "services" && <ServicesPage role={role} onChange={refreshData} />}
-          {currentPage === "sales" && isAdminOrStaff && <SalesReportPage role={role} />}
+          {currentPage === "nailtechs" && (
+            <NailTechsPage role={role} onChange={refreshData} />
+          )}
+          {currentPage === "services" && (
+            <ServicesPage role={role} onChange={refreshData} />
+          )}
+          {currentPage === "sales" && isAdminOrStaff && (
+            <SalesReportPage role={role} />
+          )}
           {currentPage === "contact" && <ContactUsPage />}
 
           {currentPage === "calendar" && (
@@ -203,7 +222,9 @@ export default function Dashboard() {
                   >
                     ‹
                   </button>
+
                   <h2 className="cal-range">{headerRangeLabel()}</h2>
+
                   <button
                     className="cal-nav-btn"
                     onClick={() => {
@@ -217,6 +238,18 @@ export default function Dashboard() {
                   </button>
                 </div>
 
+                {/* ✅ Viewer: botón para entrar al login admin */}
+                {isViewer && (
+                  <button
+                    className="cal-primary-btn"
+                    onClick={() => navigate("/admin")}
+                    title="Admin login"
+                  >
+                    Administrator Login
+                  </button>
+                )}
+
+                {/* ✅ Admin/Staff: botón para crear citas */}
                 {isAdminOrStaff && (
                   <button
                     className="cal-primary-btn"
@@ -258,7 +291,9 @@ export default function Dashboard() {
                               }
                             >
                               <span>Available Techs</span>
-                              <span className={`cal-caret ${isTechOpen ? "open" : ""}`}>▾</span>
+                              <span className={`cal-caret ${isTechOpen ? "open" : ""}`}>
+                                ▾
+                              </span>
                             </button>
                             <div className={`cal-pill-panel ${isTechOpen ? "open" : ""}`}>
                               {availTechs.length
@@ -291,14 +326,18 @@ export default function Dashboard() {
                                   className={`appt-card ${isCompleted ? "completed" : ""}`}
                                 >
                                   <div className="appt-title">{primaryLine}</div>
+
                                   {!isViewer && secondaryLine && (
                                     <div className="appt-sub">{secondaryLine}</div>
                                   )}
+
                                   <div className="appt-time">
                                     {a.startTime}
                                     {a.endTime ? ` - ${a.endTime}` : ""}
                                   </div>
+
                                   {isCompleted && <div className="appt-badge">✓ Completed</div>}
+
                                   {isAdminOrStaff && (
                                     <div className="appt-footer">
                                       <div className="appt-actions">
@@ -311,6 +350,7 @@ export default function Dashboard() {
                                         >
                                           Edit
                                         </button>
+
                                         {isAdmin && (
                                           <button
                                             className="btn btn-delete"
@@ -320,6 +360,7 @@ export default function Dashboard() {
                                           </button>
                                         )}
                                       </div>
+
                                       <label className="appt-complete">
                                         <input
                                           type="checkbox"
@@ -365,7 +406,9 @@ export default function Dashboard() {
                               }
                             >
                               <span>Available Techs</span>
-                              <span className={`cal-caret ${isTechOpen ? "open" : ""}`}>▾</span>
+                              <span className={`cal-caret ${isTechOpen ? "open" : ""}`}>
+                                ▾
+                              </span>
                             </button>
                             <div className={`cal-pill-panel ${isTechOpen ? "open" : ""}`}>
                               {availTechs.length
@@ -398,14 +441,18 @@ export default function Dashboard() {
                                   className={`appt-card ${isCompleted ? "completed" : ""}`}
                                 >
                                   <div className="appt-title">{primaryLine}</div>
+
                                   {!isViewer && secondaryLine && (
                                     <div className="appt-sub">{secondaryLine}</div>
                                   )}
+
                                   <div className="appt-time">
                                     {a.startTime}
                                     {a.endTime ? ` - ${a.endTime}` : ""}
                                   </div>
+
                                   {isCompleted && <div className="appt-badge">✓ Completed</div>}
+
                                   {isAdminOrStaff && (
                                     <div className="appt-footer">
                                       <div className="appt-actions">
@@ -418,6 +465,7 @@ export default function Dashboard() {
                                         >
                                           Edit
                                         </button>
+
                                         {isAdmin && (
                                           <button
                                             className="btn btn-delete"
@@ -427,6 +475,7 @@ export default function Dashboard() {
                                           </button>
                                         )}
                                       </div>
+
                                       <label className="appt-complete">
                                         <input
                                           type="checkbox"

@@ -221,31 +221,34 @@ export default function AppointmentModal({
           </select>
 
           <label>Services</label>
-          <select
-            ref={selectRef}
-            multiple
-            name="serviceIds"
-            size="8"
-            value={formData.serviceIds}
-            onClick={handleServiceClick}
-            className="service-select"
-          >
-            {Object.keys(groupedServices).length === 0 && (
-              <optgroup label="No services available for this technician">
-                <option disabled>—</option>
-              </optgroup>
-            )}
+<select
+  multiple
+  name="serviceIds"
+  size="8"
+  value={formData.serviceIds}
+  onChange={(e) => {
+    const selected = Array.from(e.target.selectedOptions).map((o) => o.value);
+    setFormData((prev) => ({ ...prev, serviceIds: selected }));
+  }}
+  className="service-select"
+>
+  {Object.keys(groupedServices).length === 0 && (
+    <optgroup label="No services available for this technician">
+      <option disabled>—</option>
+    </optgroup>
+  )}
 
-            {Object.keys(groupedServices).map((cat) => (
-              <optgroup key={cat} label={cat}>
-                {groupedServices[cat].map((svc) => (
-                  <option key={svc.id} value={svc.id}>
-                    {svc.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+  {Object.keys(groupedServices).map((cat) => (
+    <optgroup key={cat} label={cat}>
+      {groupedServices[cat].map((svc) => (
+        <option key={svc.id} value={String(svc.id)}>
+          {svc.name}
+        </option>
+      ))}
+    </optgroup>
+  ))}
+</select>
+
 
           <small className="selected-services">
             {formData.serviceIds.length > 0
