@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
@@ -9,15 +8,12 @@ import SalesReportPage from "./SalesReportPage";
 import ContactUsPage from "./ContactUsPage";
 import AppointmentModal from "../components/AppointmentModal";
 import { useAuth } from "../contexts/AuthContext";
+import api from "../api"; // ✅ usa el axios instance
 import "./Dashboard.css";
 
 export default function Dashboard() {
   const { role, logout } = useAuth();
   const navigate = useNavigate();
-
-  // ✅ Base URL for API (Render vs Local)
-  const API_BASE =
-    (process.env.REACT_APP_API_URL || "http://localhost:8080").replace(/\/$/, "");
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentPage, setCurrentPage] = useState("calendar");
@@ -34,16 +30,12 @@ export default function Dashboard() {
   const isAdminOrStaff = isAdmin || isStaff;
   const isViewer = !role || role === "viewer";
 
-  const refreshData = async () => {
-    await loadNailTechs();
-    await loadServices();
-    await loadAppointments();
-  };
-
   const loadNailTechs = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/nailtechs`);
-      const sorted = (res.data || []).sort((a, b) => a.name.localeCompare(b.name));
+      const res = await api.get("/api/nailtechs");
+      const sorted = (res.data || []).sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "")
+      );
       setNailTechs(sorted);
     } catch (err) {
       console.error("Error loading nail techs:", err);
@@ -52,12 +44,12 @@ export default function Dashboard() {
 
   const loadServices = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/services`);
+      const res = await api.get("/api/services");
       const sorted = (res.data || []).sort((a, b) => {
         const catA = (a.category || "").toLowerCase();
         const catB = (b.category || "").toLowerCase();
         if (catA !== catB) return catA.localeCompare(catB);
-        return a.name.localeCompare(b.name);
+        return (a.name || "").localeCompare(b.name || "");
       });
       setServices(sorted);
     } catch (err) {
@@ -67,11 +59,15 @@ export default function Dashboard() {
 
   const loadAppointments = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/appointments`);
+      const res = await api.get("/api/appointments");
       setAppointments(res.data || []);
     } catch (err) {
       console.error("Error loading appointments:", err);
     }
+  };
+
+  const refreshData = async () => {
+    await Promise.all([loadNailTechs(), loadServices(), loadAppointments()]);
   };
 
   useEffect(() => {
@@ -128,15 +124,15 @@ export default function Dashboard() {
       };
 
       if (editingAppointment) {
-        const res = await axios.put(
-          `${API_BASE}/api/appointments/${editingAppointment.id}`,
+        const res = await api.put(
+          `/api/appointments/${editingAppointment.id}`,
           payload
         );
         setAppointments((prev) =>
           prev.map((a) => (a.id === editingAppointment.id ? res.data : a))
         );
       } else {
-        const res = await axios.post(`${API_BASE}/api/appointments`, payload);
+        const res = await api.post("/api/appointments", payload);
         setAppointments((prev) => [...prev, res.data]);
       }
 
@@ -152,7 +148,7 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure you want to cancel this appointment?"))
       return;
     try {
-      await axios.delete(`${API_BASE}/api/appointments/${id}`);
+      await api.delete(`/api/appointments/${id}`);
       setAppointments((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error("Failed deleting appointment:", err);
@@ -162,12 +158,13 @@ export default function Dashboard() {
 
   const handleToggleComplete = async (appt) => {
     try {
-      const res = await axios.put(
-        `${API_BASE}/api/appointments/${appt.id}/complete`,
-        { completed: !appt.completed }
-      );
+      const res = await api.put(`/api/appointments/${appt.id}/complete`, {
+        completed: !appt.completed,
+      });
       const updated = res.data || { ...appt, completed: !appt.completed };
-      setAppointments((prev) => prev.map((a) => (a.id === appt.id ? updated : a)));
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === appt.id ? updated : a))
+      );
     } catch (err) {
       alert("Could not toggle completion.");
     }
@@ -178,7 +175,10 @@ export default function Dashboard() {
     return `${startOfWeek.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-    })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    })} - ${end.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })}`;
   };
 
   return (
@@ -189,7 +189,7 @@ export default function Dashboard() {
           onNavigate={setCurrentPage}
           onLogout={async () => {
             await logout?.();
-            navigate("/dashboard", { replace: true });
+            navigate("/dashboard");
           }}
         />
       </div>
@@ -222,9 +222,7 @@ export default function Dashboard() {
                   >
                     ‹
                   </button>
-
                   <h2 className="cal-range">{headerRangeLabel()}</h2>
-
                   <button
                     className="cal-nav-btn"
                     onClick={() => {
@@ -238,18 +236,6 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {/* ✅ Viewer: botón para entrar al login admin */}
-                {isViewer && (
-                  <button
-                    className="cal-primary-btn"
-                    onClick={() => navigate("/admin")}
-                    title="Admin login"
-                  >
-                    Administrator Login
-                  </button>
-                )}
-
-                {/* ✅ Admin/Staff: botón para crear citas */}
                 {isAdminOrStaff && (
                   <button
                     className="cal-primary-btn"
@@ -304,7 +290,8 @@ export default function Dashboard() {
 
                           <div className="cal-appts">
                             {daily.map((a) => {
-                              const clientName = a.client?.name || a.clientName || "Client";
+                              const clientName =
+                                a.client?.name || a.clientName || "Client";
                               const techName =
                                 a.nailTech?.name ||
                                 nailTechs.find((t) => t.id === a.nailTechId)?.name ||
@@ -313,7 +300,10 @@ export default function Dashboard() {
                                 ? a.services.map((s) => s.name).join(", ")
                                 : "";
 
-                              const primaryLine = isViewer ? techName || "Busy" : clientName;
+                              const primaryLine = isViewer
+                                ? techName || "Busy"
+                                : clientName;
+
                               const secondaryLine = isViewer
                                 ? ""
                                 : serviceNames + (techName ? ` • ${techName}` : "");
@@ -336,7 +326,9 @@ export default function Dashboard() {
                                     {a.endTime ? ` - ${a.endTime}` : ""}
                                   </div>
 
-                                  {isCompleted && <div className="appt-badge">✓ Completed</div>}
+                                  {isCompleted && (
+                                    <div className="appt-badge">✓ Completed</div>
+                                  )}
 
                                   {isAdminOrStaff && (
                                     <div className="appt-footer">
@@ -419,7 +411,8 @@ export default function Dashboard() {
 
                           <div className="cal-appts">
                             {daily.map((a) => {
-                              const clientName = a.client?.name || a.clientName || "Client";
+                              const clientName =
+                                a.client?.name || a.clientName || "Client";
                               const techName =
                                 a.nailTech?.name ||
                                 nailTechs.find((t) => t.id === a.nailTechId)?.name ||
@@ -428,7 +421,10 @@ export default function Dashboard() {
                                 ? a.services.map((s) => s.name).join(", ")
                                 : "";
 
-                              const primaryLine = isViewer ? techName || "Busy" : clientName;
+                              const primaryLine = isViewer
+                                ? techName || "Busy"
+                                : clientName;
+
                               const secondaryLine = isViewer
                                 ? ""
                                 : serviceNames + (techName ? ` • ${techName}` : "");
@@ -451,7 +447,9 @@ export default function Dashboard() {
                                     {a.endTime ? ` - ${a.endTime}` : ""}
                                   </div>
 
-                                  {isCompleted && <div className="appt-badge">✓ Completed</div>}
+                                  {isCompleted && (
+                                    <div className="appt-badge">✓ Completed</div>
+                                  )}
 
                                   {isAdminOrStaff && (
                                     <div className="appt-footer">
