@@ -14,7 +14,7 @@ export default function SalesReportPage({ role }) {
 
   const loadReport = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/reports/daily-sales");
+      const res = await axios.get("/api/reports/daily-sales");
       setReport(res.data);
     } catch (err) {
       console.error("Error loading sales report:", err);

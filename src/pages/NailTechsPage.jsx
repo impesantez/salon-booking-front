@@ -26,7 +26,7 @@ export default function NailTechsPage({ role, onChange }) {
 
   const loadNailTechs = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/nailtechs");
+      const res = await axios.get("/api/nailtechs");
       setNailTechs(res.data);
     } catch (err) {
       console.error("Error loading nail techs:", err);
@@ -35,7 +35,7 @@ export default function NailTechsPage({ role, onChange }) {
 
   const loadServices = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/services");
+      const res = await axios.get("/api/services");
       setServices(res.data);
     } catch (err) {
       console.error("Error loading services:", err);
@@ -96,9 +96,9 @@ export default function NailTechsPage({ role, onChange }) {
       };
 
       if (editing) {
-        await axios.put(`http://localhost:8080/api/nailtechs/${editing.id}`, payload);
+        await axios.put(`/api/nailtechs/${editing.id}`, payload);
       } else {
-        await axios.post("http://localhost:8080/api/nailtechs", payload);
+        await axios.post("/api/nailtechs", payload);
       }
 
       setNewTech({ name: "", email: "", phone: "", availableDays: [], serviceIds: [] });
@@ -125,7 +125,7 @@ export default function NailTechsPage({ role, onChange }) {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this nail tech?")) return;
     try {
-      await axios.delete(`http://localhost:8080/api/nailtechs/${id}`);
+      await axios.delete(`/api/nailtechs/${id}`);
       setNailTechs((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error("Error deleting nail tech:", err);

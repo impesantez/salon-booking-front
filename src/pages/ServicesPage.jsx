@@ -25,7 +25,7 @@ export default function ServicesPage({ role }) {
 
   const loadServices = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/services");
+      const res = await axios.get("/api/services");
       setServices(res.data);
     } catch (err) {
       console.error("Error loading services:", err);
@@ -51,9 +51,9 @@ export default function ServicesPage({ role }) {
       };
 
       if (editing) {
-        await axios.put(`http://localhost:8080/api/services/${editing.id}`, payload);
+        await axios.put(`/api/services/${editing.id}`, payload);
       } else {
-        await axios.post("http://localhost:8080/api/services", payload);
+        await axios.post("/api/services", payload);
       }
 
       setNewService({ category: "", name: "", price: "" });
@@ -69,7 +69,7 @@ export default function ServicesPage({ role }) {
     if (!window.confirm("Are you sure you want to delete this service?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/services/${id}`);
+      await axios.delete(`/api/services/${id}`);
       setServices((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
       console.error("Error deleting service:", err);
